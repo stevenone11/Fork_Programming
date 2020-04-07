@@ -6,23 +6,6 @@
 
 //fork programming
 
-#include <unistd.h>
-#include <cstdlib>
-#include <iostream>
-#include <vector>
-#include <memory>
-#include <random>
-#include <algorithm>
-#include <cstdlib>
-#include <string>
-#include <cstring>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include "kill_patch.h"
-using namespace std;
-
 //This program is supposed to:
 //
 //	I). print 2 options to choose from 1. Run Program, 2. Exit Program
@@ -43,6 +26,23 @@ using namespace std;
 //		it restarts the search in the array and as a result, needs another terminal to
 //		enter a kill command to kill the child
 //
+
+#include <unistd.h>
+#include <cstdlib>
+#include <iostream>
+#include <vector>
+#include <memory>
+#include <random>
+#include <algorithm>
+#include <cstdlib>
+#include <string>
+#include <cstring>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include "kill_patch.h"
+using namespace std;
 
 
 //initialize methods for the program
@@ -305,4 +305,4 @@ int main() {
 			createChild();
 		}
 	}
-}
+};
