@@ -8,24 +8,20 @@
 
 //This program is supposed to:
 //
-//	I). print 2 options to choose from 1. Run Program, 2. Exit Program
+//	I). print 2 options to choose from 1. Run Program, 2. Exit Program.
 //
 // II). ask the user for a letter to search for in the size of the array.
 //
-//III). ask the user for the size of the array
+//III). ask the user for the size of the array.
 //
 // IV). spawns child process (after asking for the size fo the new array), 
-//		to fill the array with raw bytes of upper Random capital letters
+//		to fill the array with raw bytes of upper Random capital letters.
 //
 //  V). child process searches the array for the inputted letter and output 
-//		the number of occurrances of said letter. Each child should only 
-//		read 1 letter and terminate after reading said letter. THen after outputting
-//		the total number of letters terminate the whole program.
+//		the number of occurrances of said letter.
 //
-// VI). when the software (child process) cannot read any number of occurrences, 
-//		it restarts the search in the array and as a result, needs another terminal to
-//		enter a kill command to kill the child
-//
+// VI). if the child proces cannot find any occurrence of the letter in the array, 
+//		it will run until it is killed by a kill command from another terminal.
 
 #include <unistd.h>
 #include <cstdlib>
@@ -94,11 +90,9 @@ char* createRandArr(int arrSize) {
 
 
 /*
-* creates the child to both create the array and search for the first occurance of 
-* the letter in the array, once the first occurrence is found, that child will make 
-* a new child to find the next occurrence of the letter and so on. This will happen until
-* every element in the array is searched through. Additionally, if no letter is found it will
-* loop until a new terminal executes the child process, so the parent process may continue
+* creates the child to both create the array and search for the total number of letters in the array.
+* Additionally, if no letter is found it will loop until a new terminal executes the child process, so 
+* the parent process may continue
 **/
 void createChild() {
 
@@ -130,15 +124,12 @@ void createChild() {
 		//should wait until the child process is terminated
 		wait(NULL);
 
-		cout << "all children terminated" << "\n" << endl;
+		cout << "child process terminated" << "\n" << endl;
 	} 
 	
 	//this is the child process
 	//this process will be used to create an array and then search for the first occurrence
 	//it will also be terminated if a kill command is used in another terminal
-	//also creates new children if the first occurrence is found, the new children searches 
-	//for the next occurrence also counting the total number of ocurrences and continuously does so until the 
-	//end of the array is reached
 	else if (childPID == 0) 
 	{
 
@@ -149,7 +140,8 @@ void createChild() {
 		
 		//creates the array using the inputs given earlier by the user and saves it into a variable
 		char* userArr = createRandArr(arrSize);
-		cout << "the array is: " << userArr << "\n" << endl;
+		cout << "the array is: " << "\n" << userArr << "\n" << endl;
+		cout << "searching through the array\n" << endl;
 
 		//now looks through the array to get the letter the user wants
 		//if it does not exist, will loop until a kill command is used to end the process of the child
@@ -162,81 +154,22 @@ void createChild() {
     	strcpy(exitMsg.greeting, "C_Leaves");
     	kill_patch(qid, (struct msgbuf *)&exitMsg, len, 1);
 
-		//the loop if there isnt a first occurrence (hasnt found the letter)
+		//will continuously loop if there isnt a first occurrence (hasnt found the letter)
 		while(*PointerLetterCount < 1) 
 		{
-
-			//to ensure the last child is the only one displaying the total number of occurrences, 
-			//will have this flag that only allows the last child that actually exits the for loop correctly, 
-			//to display the total number of occurrences
-			bool processFoundElement = false;
-			
-			//loops through the array, searching for a character
-			for(int i = 0; i < arrSize; i++) 
+			for(int i = 0; i < arrSize; i++)
 			{
 
-				//if the child finds a character, it will create a new child to find the next character
-				//with this the pointer will add to the num 
-				if(char(userArr[i]) == searchChar) 
+				//counts the total number of occurrences of the letter
+				if(char(userArr[i]) == searchChar)
 				{
-
-					//changes the count of letters by incrementing it by one, since its an address in memory
-					//despite being different processes, it should add to the total num of letters
 					*PointerLetterCount += 1;
-					
-					//forks another child into existence to find the next occurrence of the letter
-					long childsChildPID = 0;
-					childsChildPID = fork();
-
-					//parent process
-					//will wait for child proces to finish then exit and exit the process
-					if(childsChildPID > 0) 
-					{
-
-						cout << "New Parent process (child); pid: " << getpid()
-							<< ", ppid (parent ID): " << getppid()
-							<< ", child will be: " << childsChildPID << "\n" << endl;
-
-						//waits for other children processes to end
-						wait(NULL);
-
-						//delcares that the process found a new child so that this parent will not display
-						//the total number of occurrences, only the child that exits the loop naturally will
-						//display the total count of occurrences
-						processFoundElement = true;
-
-						//now leaves the while loop
-						break;
-					}
-
-					//child process
-					else if(childsChildPID == 0) 
-					{
-
-						cout << " New Child process (child of child); pid: " << getpid()
-							<< ", ppid (parent ID): " << getppid()
-							<< ", child will be (should be 0 because hasnt run):  " 
-							<< childsChildPID  << "\n" << endl;
-						
-						//just continue with the loop so doent do anything
-					}
-
-					else 
-					{
-						cout << "error child of child not made" << endl;
-					}
 				}
 			}
-
-			//displays the amount of elements only when its the last child process made that exited the for loop
-			//naturally, so that the true number of elements is displayed before exiting
-			if(!processFoundElement and *PointerLetterCount > 0)
-			{
-				//displays the letter count before termination
-				cout << "the total number of the letter " << searchChar 
-				<< " in the array is: " << *PointerLetterCount << "\n" << endl;
-			}
 		}
+
+		cout << "the total number of occurrences of the letter: " << searchChar 
+			<< " is: " << *PointerLetterCount << "\n" << endl;
 
 		//child process exits
 		exit(0);
